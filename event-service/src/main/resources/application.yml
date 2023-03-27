@@ -1,5 +1,7 @@
 server:
     port: 8082
+    error:
+        include-message: always
 eureka:
     instance:
         instance-id: ${spring.application.name}:${random.value}
@@ -11,12 +13,12 @@ spring:
     application:
         name: event-service
     datasource:
-        driverClassName: org.h2.Driver
-        password: password
-        url: jdbc:h2:mem:events_db
-        username: sa
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/event_service?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+        username: root
+        password: root
     jpa:
-        database-platform: org.hibernate.dialect.H2Dialect
+        database-platform: org.hibernate.dialect.MySQL5Dialect
         hibernate:
             ddl-auto: update
 

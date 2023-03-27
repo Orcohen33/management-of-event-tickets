@@ -1,19 +1,17 @@
 package com.orcohen.eventsservice.service;
 
 import com.orcohen.eventsservice.clients.LocationServiceApi;
-import com.orcohen.eventsservice.clients.TicketClient;
 import com.orcohen.eventsservice.dto.request.EventRequest;
 import com.orcohen.eventsservice.dto.response.EventLocationResponse;
+import com.orcohen.eventsservice.dto.response.EventResponse;
 import com.orcohen.eventsservice.dto.response.LocationResponse;
 import com.orcohen.eventsservice.entity.Event;
-import com.orcohen.eventsservice.dto.response.EventResponse;
 import com.orcohen.eventsservice.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -73,17 +71,7 @@ public class EventService {
         eventRepository.deleteById(id);
     }
 
-    public List<EventResponse> mapToDTOs(List<Event> events) {
-        return events.stream()
-                .map(event -> EventResponse
-                        .builder()
-                        .id(event.getId())
-                        .name(event.getName())
-                        .description(event.getDescription())
-                        .ticketPrice(event.getTicketPrice())
-                        .build())
-                .toList();
-    }
+    //    Mappers
 
     public EventResponse mapToDTO(Event event) {
         return EventResponse
@@ -104,6 +92,7 @@ public class EventService {
                 .description(eventRequest.getDescription())
                 .ticketPrice(eventRequest.getTicketPrice())
                 .ticketsForSale(eventRequest.getTicketsForSale())
+                .locationId(eventRequest.getLocationId())
                 .date(eventRequest.getDate())
                 .build();
     }
