@@ -5,8 +5,11 @@ import com.orcohen.eventsservice.dto.response.EventLocationResponse;
 import com.orcohen.eventsservice.dto.response.EventResponse;
 import com.orcohen.eventsservice.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
@@ -18,34 +21,41 @@ public class EventController {
 
     public final EventService eventService;
 
-    @GetMapping("/test")
-    public String test() {
-        return "test";
-    }
     @GetMapping
-    public List<EventResponse> getEvents() {
-        return eventService.findAllEvents();
+    public ResponseEntity<List<EventResponse>> getEvents() {
+        return ResponseEntity.ok(eventService.findAllEvents());
     }
 
     @GetMapping("/{id}")
-    public EventLocationResponse getEventById(@PathVariable Long id) {
-        return eventService.findEventById(id);
+    public ResponseEntity<EventLocationResponse> getEventById(@PathVariable Long id) {
+        return ResponseEntity.ok(eventService.findEventById(id));
     }
 
     @PostMapping
-    public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest eventRequest) {
+    public ResponseEntity<EventResponse> createEvent(@RequestBody @Validated EventRequest eventRequest) {
         try{
             final var event = eventService.createEvent(eventRequest);
             URI location = URI.create(String.format("/api/v1/events/%s", event.getId()));
             return ResponseEntity.created(location).body(event);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            // return the exception message
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @PutMapping("/{id}")
-    public EventResponse updateEvent(@PathVariable Long id, @RequestBody EventRequest eventRequest) {
-        return eventService.updateEvent(id, eventRequest);
+    public ResponseEntity<EventResponse> updateEvent(@PathVariable Long id, @RequestBody @Validated EventRequest eventRequest) {
+        return ResponseEntity.ok(eventService.updateEvent(id, eventRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
+        try {
+            eventService.deleteEvent(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
 }
